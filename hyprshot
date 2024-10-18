@@ -14,6 +14,7 @@ Examples:
   capture a window                      \`hyprshot -m window\`
   capture active window to clipboard    \`hyprshot -m window -m active --clipboard-only\`
   capture selected monitor              \`hyprshot -m output -m DP-1\`
+  capture all monitors                  \`hyprshot -m all\`
 
 Options:
   -h, --help                show help message
