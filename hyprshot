@@ -108,13 +108,13 @@ function trim() {
 }
 
 function run_grim() {
-	local output=$1
-	local geometry=$2
+	local output="${1}"
+	local geometry="${2}"
 
 	if [ -z "$geometry" ]; then
-		grim $output
+		grim "${output}"
 	else
-		grim -g "$geometry" $output
+		grim -g "${geometry}" "${output}"
 	fi
 }
 
@@ -123,13 +123,13 @@ function save_geometry() {
 	local output=""
 
 	if [ $RAW -eq 1 ]; then
-		run_grim - $geometry 
+		run_grim - "${geometry}"
 		return 0
 	fi
 
 	if [ $CLIPBOARD -eq 0 ]; then
 		mkdir -p "$SAVEDIR"
-		run_grim $SAVE_FULLPATH $geometry 
+		run_grim "$SAVE_FULLPATH" "${geometry}"
 		output="$SAVE_FULLPATH"
 		wl-copy --type image/png < "$output"
 		[ -z "$COMMAND" ] || {
