@@ -108,8 +108,8 @@ function trim() {
 }
 
 function run_grim() {
-	local output="${1}"
-	local geometry="${2}"
+	local geometry="${1}"
+	local output="${2}"
 
 	if [ -z "$geometry" ]; then
 		grim "${output}"
@@ -123,20 +123,20 @@ function save_geometry() {
 	local output=""
 
 	if [ $RAW -eq 1 ]; then
-		run_grim - "${geometry}"
+		run_grim "${geometry}" -
 		return 0
 	fi
 
 	if [ $CLIPBOARD -eq 0 ]; then
 		mkdir -p "$SAVEDIR"
-		run_grim "$SAVE_FULLPATH" "${geometry}"
+		run_grim "${geometry}" "$SAVE_FULLPATH"
 		output="$SAVE_FULLPATH"
 		wl-copy --type image/png < "$output"
 		[ -z "$COMMAND" ] || {
 			"$COMMAND" "$output"
 		}
 	else
-		wl-copy --type image/png < <(run_grim - $geometry)
+		wl-copy --type image/png < <(run_grim $geometry -)
 	fi
 
 	send_notification $output
@@ -171,6 +171,10 @@ function begin_grab() {
 			;;
 		region)
 			local geometry=`grab_region`
+			if [ -z "$geometry" ]; then
+				echo "No region selected"
+				exit 1
+			fi
 			;;
 		window)
 			if [ $CURRENT -eq 1 ]; then
@@ -178,10 +182,10 @@ function begin_grab() {
 			else
 				local geometry=`grab_window`
 			fi
-			geometry=`trim "${geometry}"`
+			local geometry=`trim "${geometry}"`
 			;;
 		all)
-			geometry=""
+			local geometry=""
 			;;
 	esac
 	if [ ${DELAY} -gt 0 ] 2>/dev/null; then
@@ -322,11 +326,12 @@ NOTIF_TIMEOUT=5000
 CURRENT=0
 FREEZE=0
 [ -z "$XDG_PICTURES_DIR" ] && type xdg-user-dir &> /dev/null && XDG_PICTURES_DIR=$(xdg-user-dir PICTURES)
-FILENAME="$(date +'%Y-%m-%d_%H%M%S.png')"
+FILENAME="$(date +'%Y-%m-%d_%H-%M.png')"
 [ -z "$HYPRSHOT_DIR" ] && SAVEDIR="${XDG_PICTURES_DIR:=~}/Screenshots" || SAVEDIR=${HYPRSHOT_DIR}
 
 args $0 "$@"
 
 SAVE_FULLPATH="$SAVEDIR/$FILENAME"
+
 [ $CLIPBOARD -eq 0 ] && Print "Saving in: %s\n" "$SAVE_FULLPATH"
 begin_grab $OPTION & checkRunning
